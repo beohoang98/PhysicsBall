@@ -1,54 +1,69 @@
-var scl = 15;
-var n = 35;
+var scl = 20;
+var n = 40;
 var ball = [];
-var g = 0.5; //gravity
+var g = 30; //gravity
 var gy = g;
 var gx = 0;
-var giatoc = 0.1;
 var per = 0.9;
-var tile = 0.04;
+var tile = 0.0001;
+
+var frameCount = 0;
 
 function setup() {
-	createCanvas(600, 400);
+	createCanvas(600, 600);
 	frameRate(20/tile);
-
+	
 	for (var i = 0; i < n; i++) ball[i] = new Ball();
+	
 }
 
 function draw() {
-	background(50);
-	fill(200, 0, 255);
 	
 	update();
-	for (var i = 0; i < n; i++) {
-		ball[i].show();
+	++frameCount;
+
+	if (frameCount >= 1) {
+		noStroke();
+		background(0, 0, 0, mouseX*256/width);
+		fill(200, 0, 255, mouseX*256/width);
+		for (var i = 0; i < n; i++) {
+			ball[i].show();
+		}
+		frameCount = 0;
+		stroke(200);
+		ellipse(mouseX, mouseY, 20, 20);
 	}
 }
 
 function bounce(A, B) {
 	var d = Math.sqrt((A.x-B.x)*(A.x-B.x) + (A.y-B.y)*(A.y-B.y));
-	var dspeed = Math.sqrt(Math.pow(A.xspeed-B.xspeed, 2) + Math.pow(A.yspeed-B.yspeed, 2));
-	var k = d/scl;
-	if (k <= 1) {
-		/*var dx = d*Math.cos((A.x - B.x)/d);
-		var dy = d*Math.sin((A.y - B.y)/d);
-		A.x = A.x - dx;
-		A.y = A.y - dy;
-		B.x = B.x + dx;
-		B.y = B.y + dy;*/
+	var dAspeed = Math.sqrt(A.xspeed*A.xspeed + A.yspeed*A.yspeed);
+	var dBspeed = Math.sqrt(B.xspeed*B.xspeed + B.yspeed*B.yspeed);
+	if (d <= scl) {
+		var dscl = (scl-d);
+		var dx = ((A.x - B.x)/d);
+		var dy = ((A.y - B.y)/d);
+		A.x = A.x + dx*dscl;
+		A.y = A.y + dy*dscl;
+		B.x = B.x - dx*dscl;
+		B.y = B.y - dy*dscl;
 
-		dx = (A.xspeed-B.xspeed);
-		dy = (A.yspeed-B.yspeed);
-		A.xspeed -= dx;
-		A.yspeed -= dy;
-		B.xspeed += dx;
-		B.yspeed += dy;
+		A.xspeed *= per;
+		A.yspeed *= per;
+		B.xspeed *= per;
+		B.yspeed *= per;
+
+		A.xspeed += dx*(dBspeed+dscl)/2;
+		A.yspeed += dy*(dBspeed+dscl)/2;
+		B.xspeed -= dx*(dAspeed+dscl)/2;
+		B.yspeed -= dy*(dAspeed+dscl)/2;
 	}
 }
 
 function update() {
-	for (var i = 0; i < n-1; i++) {
-		for (var j = i+1; j < n; j++) {
+	for (var i = 0; i < n; i++) {
+		for (var j = 0; j < n; j++)
+		if (i !== j) {
 			bounce(ball[i], ball[j]);
 		}
 	}
@@ -56,13 +71,17 @@ function update() {
 		ball[i].update();
 		ball[i].bounce();
 	}
+	//changeGdir();
 }
 
-function changeGdir(GofX, GofY) {
-	gx = GofX;
-	gy = GofY;
+function changeGdir() {
+	gx = (mouseX-width/2);
+	gy = (mouseY-height/2);
+	var gp = Math.sqrt(gx*gx + gy*gy);
+	gx = gx/gp*g;
+	gy = gy/gp*g
 }
-
+/*
 function keyPressed() {
 	if (keyCode === UP_ARROW) {
 		changeGdir(0, -g);
@@ -76,4 +95,4 @@ function keyPressed() {
 	else if (keyCode === RIGHT_ARROW) {
 		changeGdir(g, 0);
 	}
-}
+}*/

@@ -1,12 +1,18 @@
 function Ball() {
 	this.x = floor(scl*random(width/scl));
 	this.y = floor(scl*random(height/scl));
-	this.xspeed = floor(random(15)-7);
+	this.xspeed = floor(random(15)-7)*scl;
 	this.yspeed = floor(random(15)-7);
+	this.gx = 0;
+	this.gy = 0;
 
 	this.update = function() {
-		this.yspeed += gy;
-		this.xspeed += gx;
+		this.gx = mouseX-this.x;
+		this.gy = mouseY-this.y;
+		var gt = Math.sqrt(this.gx*this.gx+this.gy*this.gy);
+
+		this.xspeed += this.gx*g/gt;
+		this.yspeed += this.gy*g/gt;
 		this.x += this.xspeed*scl*tile;
 		this.y += this.yspeed*scl*tile;
 
